@@ -43,21 +43,21 @@ python src/testbed.py --model_name <target_model_name> --mode <dataset_name>
 ```
 
 ### Parameters Explained:
--top_k_entropy: Top K entropy value to select high-entropy words (default: 5).
--min_len_line_generate: Minimum length of a line to generate (default: 7).
--max_len_line_generate: Maximum length of a line to generate (default: 40).
--mode: Mode of operation, such as 'PILE' or 'BookMIA' (default: 'PILE').
--quantize: Whether to quantize the model (options: 'T' for True, 'F' for False; default: 'F').
--model_name: Model name or path for loading (default: "huggyllama/llama-7b").
--train_val_pile: The Pile section to use, either 'train' or 'validation' (default: 'validation').
+- top_k_entropy: Top K entropy value to select high-entropy words (default: 5).
+- min_len_line_generate: Minimum length of a line to generate (default: 7).
+- max_len_line_generate: Maximum length of a line to generate (default: 40).
+- mode: Mode of operation, such as 'PILE' or 'BookMIA' (default: 'PILE').
+- quantize: Whether to quantize the model (options: 'T' for True, 'F' for False; default: 'F').
+- model_name: Model name or path for loading (default: "huggyllama/llama-7b").
+- train_val_pile: The Pile section to use, either 'train' or 'validation' (default: 'validation').
 
 ### Huggingface Models:
 
-`huggyllama/LLaMa-7b`
-`huggyllama/LLaMa-13b`
-`huggyllama/LLaMa-30b`
-`EleutherAI/pythia-6.9b`
-`EleutherAI/pythia-12b`
+- `huggyllama/LLaMa-7b`
+- `huggyllama/LLaMa-13b`
+- `huggyllama/LLaMa-30b`
+- `EleutherAI/pythia-6.9b`
+- `EleutherAI/pythia-12b`
 
 
 
