@@ -43,13 +43,13 @@ python src/testbed.py --model_name <target_model_name> --mode <dataset_name>
 ```
 
 ### Parameters Explained:
-- top_k_entropy: Top K entropy value to select high-entropy words (default: 5).
-- min_len_line_generate: Minimum length of a line to generate (default: 7).
-- max_len_line_generate: Maximum length of a line to generate (default: 40).
-- mode: Mode of operation, such as 'PILE' or 'BookMIA' (default: 'PILE').
-- quantize: Whether to quantize the model (options: 'T' for True, 'F' for False; default: 'F').
-- model_name: Model name or path for loading (default: "huggyllama/llama-7b").
-- train_val_pile: The Pile section to use, either 'train' or 'validation' (default: 'validation').
+- _top_k_entropy:_ Top K entropy value to select high-entropy words (default: 5).
+- _min_len_line_generate:_ Minimum length of a line to generate (default: 7).
+- _max_len_line_generate:_ Maximum length of a line to generate (default: 40).
+- _mode:_ Mode of operation, such as 'PILE' or 'BookMIA' (default: 'PILE').
+- _quantize:_ Whether to quantize the model (options: 'T' for True, 'F' for False; default: 'F').
+- _model_name:_ Model name or path for loading (default: "huggyllama/llama-7b").
+- _train_val_pile:_ The Pile section to use, either 'train' or 'validation' (default: 'validation').
 
 ### Huggingface Models:
 
