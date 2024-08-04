@@ -52,13 +52,13 @@ python src/testbed.py --model_name <target_model_name> --mode <dataset_name>
 -train_val_pile: The Pile section to use, either 'train' or 'validation' (default: 'validation').
 
 ### Huggingface Models:
-```python
-huggyllama/LLaMa-7b
-huggyllama/LLaMa-13b
-huggyllama/LLaMa-30b
-EleutherAI/pythia-6.9b
-EleutherAI/pythia-12b
-```
+
+`huggyllama/LLaMa-7b`
+`huggyllama/LLaMa-13b`
+`huggyllama/LLaMa-30b`
+`EleutherAI/pythia-6.9b`
+`EleutherAI/pythia-12b`
+
 
 
 ## 📊 Baselines
