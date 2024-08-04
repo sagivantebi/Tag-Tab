@@ -105,7 +105,7 @@ dataset = load_dataset("monology/pile-uncopyrighted")
 
 ## 🔐 API Key for OpenAI Models
 
-When using OpenAI models, ensure to add your API key at the appropriate line in `run_neighbor_attack.py`:
+When using OpenAI models, ensure to add your API key at the appropriate line in `attacks.py` and `run_neighbor_attack.py`:
 
 ```python
 openai.api_key = "YOUR_API_KEY"
