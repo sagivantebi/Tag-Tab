@@ -38,9 +38,9 @@ To get started with Tag&Tab, please refer to the [Installation Guide](docs/insta
 
 1. **Preprocessing**:
     - **Word Entropy Map**: Calculate the entropy for each word \( w_i \) in dataset \( D \) using the formula:
-    \[
+    $$
     E(w_i) = p(w_i) \cdot \log_2 p(w_i)
-    \]
+    $$
     - **Sentence Segmentation**: Split the text into individual sentences using the Natural Language Toolkit (NLTK).
 
 2. **Tag**:
