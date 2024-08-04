@@ -93,12 +93,6 @@ dataset = load_dataset("monology/pile-uncopyrighted")
 - **Validation**: Refers to unseen data during pretraining.
 - **Train**: Refers to seen data.
 
-References
-Gao et al. (2020). "The Pile: An 800GB Dataset of Diverse Text for Language Modeling."
-Shi et al. (2023). "Detecting Memorized Training Data in Language Models."
-Chang et al. (2023). "ChatGPT Memorization Analysis."
-Project Gutenberg: https://www.gutenberg.org/
-
 
 ## 🔐 API Key for OpenAI Models
 
