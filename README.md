@@ -22,37 +22,6 @@ We explore the pretraining data detection problem: given a piece of text and bla
 }
 ```
 
-## 📘 Datasets
-
-### BookMIA Datasets
-
-The BookMIA datasets serve as a benchmark designed to evaluate membership inference attack (MIA) methods, specifically in detecting pretraining data from OpenAI models released before 2023 (such as text-davinci-003). Access our BookMIA datasets directly on Hugging Face.
-
-**Loading the Datasets:**
-
-```python
-from datasets import load_dataset
-dataset = load_dataset("swj0419/BookMIA")
-```
-
-- **Label 0**: Refers to unseen data during pretraining.
-- **Label 1**: Refers to seen data.
-
-
-### The Pile Dataset
-
-The Pile dataset is a large, diverse, open-source language modeling dataset developed by EleutherAI. It is used to train large language models and evaluate MIA methods.
-
-**Loading the Datasets:**
-
-```python
-from datasets import load_dataset
-dataset = load_dataset("monology/pile-uncopyrighted")
-```
-
-- **Validation**: Refers to unseen data during pretraining.
-- **Train**: Refers to seen data.
-
 ## 🚀 Running Tag&Tab
 
 ### Files in `src/` Folder
@@ -92,6 +61,39 @@ Our script supports the following baselines:
 - **Min-K%**: averaging the lowest k% probabilities.
 - **Max-K%**: averaging the highest k% probabilities.
 - **Min-K%**: averaging the lowest k% probabilities while normalizing token log probabilities using mean and variance.
+
+## 📘 Datasets
+
+### BookMIA Datasets
+
+The BookMIA datasets serve as a benchmark designed to evaluate membership inference attack (MIA) methods, specifically in detecting pretraining data from OpenAI models released before 2023 (such as text-davinci-003). Access our BookMIA datasets directly on Hugging Face.
+
+**Loading the Datasets:**
+
+```python
+from datasets import load_dataset
+dataset = load_dataset("swj0419/BookMIA")
+```
+
+- **Label 0**: Refers to unseen data during pretraining.
+- **Label 1**: Refers to seen data.
+
+
+### The Pile Dataset
+
+The Pile dataset is a large, diverse, open-source language modeling dataset developed by EleutherAI. It is used to train large language models and evaluate MIA methods.
+
+**Loading the Datasets:**
+
+```python
+from datasets import load_dataset
+dataset = load_dataset("monology/pile-uncopyrighted")
+```
+
+- **Validation**: Refers to unseen data during pretraining.
+- **Train**: Refers to seen data.
+
+
 
 ## 🔐 API Key for OpenAI Models
 
