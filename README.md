@@ -14,7 +14,6 @@ We explore the pretraining data detection problem: given a piece of text and bla
 
 
 - We show the impact of our word selection method, Tag, which selects the highest $K$ entropy words, compared to a random selection of words using the same Tab algorithm. For each model, we presented 10 results using the Tag method (Blue) and 10 results using a random selection of words (Orange).
-
 The results indicate that selecting the highest $K$ entropy words improves performance across all models. The Tag method achieved an average AUC of 79%, compared to an average AUC of 64.4% with a random selection of $K$ words. This demonstrates the effectiveness of the Tag method in enhancing model performance by focusing on high-entropy words.
 ![K_ent_rand](https://github.com/user-attachments/assets/91bef60b-b182-4a8b-a5f5-6da133c268a6)
 
