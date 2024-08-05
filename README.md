@@ -8,19 +8,6 @@ Welcome to the Tag&Tab repository, the official implementation of our novel meth
 
 We explore the pretraining data detection problem: given a piece of text and black-box access to an LLM without knowing the pretraining data, can we determine if the model was trained on the provided text? Our approach, Tag&Tab, uses advanced NLP techniques to tag high-entropy keywords and predict their log-likelihoods using the target LLM.
 
-⭐ If you find our implementation and paper helpful, please consider citing our work ⭐:
-
-```bibtex
-@article{antebi2024tagtab,
-  title={The Chosen Words: Keyword-Based Method for Detecting Pretraining Data from Large Language Models},
-  author={Sagiv Antebi and [Co-authors]},
-  journal={Journal/Conference Name},
-  year={2024},
-  volume={XX},
-  number={YY},
-  pages={ZZ-ZZZ},
-}
-```
 
 ## 🚀 Running Tag&Tab
 
