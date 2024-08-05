@@ -22,6 +22,7 @@ The results indicate that selecting the highest $K$ entropy words improves perfo
 - The number of chosen keywords that perform best was tested by choosing 1 to 10 keywords from each sentence.
 The results shown in Figure~\ref{fig:best_k} demonstrate that the optimal number of keywords required to ensure the optimal detection depends also on the model architecture. For different sizes of the LLaMa1 models, the optimal number of keywords ranged from 2 to 3, while for the Pythia models and GPT-3.5 turbo, the optimal number of tagged keywords was 7 keywords.
 To generalize our selection we can infer that the best results across all models on average were when the number of highest $K$ entropy words was when $K=4$, resulting in an average AUC score of 79.7\%.
+
 ![optimal_k](https://github.com/user-attachments/assets/496e4069-dc0e-497e-99d1-b7fb1346c253)
 
 
