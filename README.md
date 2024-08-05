@@ -10,6 +10,20 @@ Illustration of the method Tag\&Tab - The process starts by inputting a text, in
 
 We explore the pretraining data detection problem: given a piece of text and black-box access to an LLM without knowing the pretraining data, can we determine if the model was trained on the provided text? Our approach, Tag&Tab, uses advanced NLP techniques to tag high-entropy keywords and predict their log-likelihoods using the target LLM.
 
+## Optimal Configuration
+
+
+- We show the impact of our word selection method, Tag, which selects the highest $K$ entropy words, compared to a random selection of words using the same Tab algorithm. For each model, we presented 10 results using the Tag method (Blue) and 10 results using a random selection of words (Orange).
+
+The results indicate that selecting the highest $K$ entropy words improves performance across all models. The Tag method achieved an average AUC of 79%, compared to an average AUC of 64.4% with a random selection of $K$ words. This demonstrates the effectiveness of the Tag method in enhancing model performance by focusing on high-entropy words.
+![K_ent_rand](https://github.com/user-attachments/assets/91bef60b-b182-4a8b-a5f5-6da133c268a6)
+
+
+- The number of chosen keywords that perform best was tested by choosing 1 to 10 keywords from each sentence.
+The results shown in Figure~\ref{fig:best_k} demonstrate that the optimal number of keywords required to ensure the optimal detection depends also on the model architecture. For different sizes of the LLaMa1 models, the optimal number of keywords ranged from 2 to 3, while for the Pythia models and GPT-3.5 turbo, the optimal number of tagged keywords was 7 keywords.
+To generalize our selection we can infer that the best results across all models on average were when the number of highest $K$ entropy words was when $K=4$, resulting in an average AUC score of 79.7\%.
+![optimal_k](https://github.com/user-attachments/assets/496e4069-dc0e-497e-99d1-b7fb1346c253)
+
 
 ## 🚀 Running Tag&Tab
 
