@@ -4,6 +4,8 @@ Welcome to the Tag&Tab repository, the official implementation of our novel meth
 
 ![Tag Tab Diagram  - Image](https://github.com/user-attachments/assets/1a0266aa-c422-4e3b-92cf-8bbf451d5f0f)
 
+Illustration of the method Tag\&Tab - The process starts by inputting a text, in our example we entered the ending of the famous poem "The Road Not Taken"~\cite{frost1916}, into the Target LLM to gain its words probabilities distribution (Words Prob). Simultaneously, in the Tag phase, the keywords are selected from the Text Input using the Words Entropy Map and the Spacy library, taking the highest scored words entropy and the NERs. Then in the Tab phase, we calculate the log-likelihood of only the selected keywords. Finally, we compare the average log-likelihood of the chosen keywords against a threshold $\gamma$ to determine if the text was part of the pretraining data of the Target LLM or not.
+
 ## Overview
 
 We explore the pretraining data detection problem: given a piece of text and black-box access to an LLM without knowing the pretraining data, can we determine if the model was trained on the provided text? Our approach, Tag&Tab, uses advanced NLP techniques to tag high-entropy keywords and predict their log-likelihoods using the target LLM.
