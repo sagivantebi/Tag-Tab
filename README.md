@@ -111,9 +111,3 @@ When using OpenAI models, ensure to add your API key at the appropriate line in 
 openai.api_key = "YOUR_API_KEY"
 ```
 
-## Contact
-
-For any questions or issues, please open an [issue](https://github.com/username/TagAndTab/issues) or contact us at [email@example.com](mailto:email@example.com).
-
-Thank you for your interest in Tag&Tab! We hope this repository serves as a valuable resource for your research and development efforts.
-
