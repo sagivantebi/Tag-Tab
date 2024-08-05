@@ -1,4 +1,4 @@
-# Tag&Tab: Efficient and Effective Detection of Pretraining Data from Large Language Models
+# 🧩Tag&Tab: Efficient and Effective Detection of Pretraining Data from Large Language Models
 
 Welcome to the Tag&Tab repository, the official implementation of our novel method for detecting pretraining data from Large Language Models (LLMs). This repository contains the source code, datasets references, and evaluation scripts necessary to replicate our experiments and results as presented in our research paper, "Tag&Tab: Enhancing Data Leakage Detection in Large Language Models through Keyword-Based Membership Inference Attacks"
 
