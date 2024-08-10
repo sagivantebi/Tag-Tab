@@ -2,9 +2,10 @@
 
 Welcome to the Tag&Tab repository, the official implementation of our novel method for detecting pretraining data from Large Language Models (LLMs). This repository contains the source code, datasets references, and evaluation scripts necessary to replicate our experiments and results as presented in our research paper, "Tag&Tab: Enhancing Data Leakage Detection in Large Language Models through Keyword-Based Membership Inference Attacks"
 
-![Tag Tab Diagram  - Image](https://github.com/user-attachments/assets/1a0266aa-c422-4e3b-92cf-8bbf451d5f0f)
+![Tag-tab](https://github.com/user-attachments/assets/6bd86765-d4e5-4455-a37e-1a3cf6d9a29e)
 
-Illustration of the method Tag\&Tab - The process starts by inputting a text, in our example we entered the ending of the famous poem "The Road Not Taken", into the Target LLM to gain its words probabilities distribution (Words Prob). Simultaneously, in the Tag phase, the keywords are selected from the Text Input using the Words Entropy Map and the Spacy library, taking the highest scored words entropy and the NERs. Then in the Tab phase, we calculate the log-likelihood of only the selected keywords. Finally, we compare the average log-likelihood of the chosen keywords against a threshold $\gamma$ to determine if the text was part of the pretraining data of the Target LLM or not.
+
+Illustration of the method Tag&Tab - The process starts by inputting a text (in this example, the input is the conclusion of the well-known poem "The Road Not Taken" in the target LLM to obtain its word probability distribution (Word Probability). In the Tag step, the keywords are selected based on the words' entropy score (created in the Preprocessing phase). In the Tab step, the log-likelihood of the selected keywords is calculated. Finally, in the infer step, the average log-likelihood of the chosen keywords is compared against a threshold $\gamma$ to determine if the text was part of the target LLM's pretraining data
 
 ## Overview
 
