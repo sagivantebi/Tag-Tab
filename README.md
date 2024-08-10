@@ -47,7 +47,6 @@ python src/testbed.py --model_name <target_model_name> --mode <dataset_name>
 ```
 
 ### Parameters Explained:
-- _top_k_entropy:_ Top K entropy value to select high-entropy words (default: 5).
 - _min_len_line_generate:_ Minimum length of a line to generate (default: 7).
 - _max_len_line_generate:_ Maximum length of a line to generate (default: 40).
 - _mode:_ Mode of operation, such as 'PILE' or 'BookMIA' (default: 'PILE').
