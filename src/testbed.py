@@ -16,7 +16,7 @@ class ExperimentOptions:
         login(token="Enter Your Hugginface Token")
 
     def initialize_parser(self):
-        self.parser.add_argument('--top_k_entropy', type=int, default=5, help='Top K entropy value')
+        self.parser.add_argument('--top_k_entropy', type=int, default=10, help='Top K entropy value')
         self.parser.add_argument('--min_len_line_generate', type=int, default=7,
                                  help='Minimum length of line to generate')
         self.parser.add_argument('--max_len_line_generate', type=int, default=40,
