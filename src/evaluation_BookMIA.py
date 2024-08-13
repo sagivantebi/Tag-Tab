@@ -1,5 +1,4 @@
 import warnings
-import optuna
 import datetime
 import logging
 import numpy as np
@@ -10,7 +9,6 @@ import matplotlib
 import os
 import pandas as pd
 
-optuna.logging.set_verbosity(optuna.logging.WARNING)
 logging.getLogger().setLevel(logging.WARNING)
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -131,7 +129,7 @@ def save_metrics_to_csv(results, output_dir, model_name, dataset):
     attacks_to_keep = [
         "ppl", "ppl_zlib",
         "Min_20.0% Prob", "Max_20.0% Prob",
-        "MinK++_20.0% Prob"] + ["sentence_entropy_log_likelihood_k=" + str(i) for i in range(1,11)] + ["random_words_mean_prob_k=" + str(i) for i in range(1,11)]
+        "MinK++_20.0% Prob"] + ["tag_tab_AT_k=" + str(i) for i in range(1,11)] + ["random_words_mean_prob_k=" + str(i) for i in range(1,11)]
 
     # Filter the DataFrame to include only the specified attacks
     df_filtered = df[df['method'].isin(attacks_to_keep)]
