@@ -2,9 +2,8 @@ import numpy as np
 from tqdm import tqdm
 import openai
 
-from Code_Exp.helpers import bottom_k_entropy_words, preprocess_text, convert_huggingface_data_to_list_dic, \
-    write_to_csv,create_entropy_map_func, load_data_pile
-from Code_Help_Not_In_use.run_exp_books import create_line_to_top_words_map
+from src.helpers import bottom_k_entropy_words, preprocess_text, convert_huggingface_data_to_list_dic, \
+    write_to_csv, create_entropy_map_func, load_data_pile, create_line_to_top_words_map
 import torch.nn.functional as F
 import torch
 from datasets import load_dataset
@@ -14,8 +13,7 @@ import random
 from book_list import book_list_not_trained
 
 
-
-def calculatePerplexity(sentence, model, tokenizer, gpu):
+def getPerplexityScore(sentence, model, tokenizer, gpu):
     """
     exp(loss)
     """
@@ -32,10 +30,10 @@ def calculatePerplexity(sentence, model, tokenizer, gpu):
     for i, token_id in enumerate(input_ids_processed):
         probability = probabilities[0, i, token_id].item()
         all_prob.append(probability)
-    return torch.exp(loss).item(), all_prob, loss.item(), logits, input_ids_processed
+    return torch.exp(loss).item(), all_prob, logits, input_ids_processed
 
 
-def calculatePerplexity_gpt3(prompt, model_name):
+def gpt3PerplexityScore(prompt, model_name):
     """
     Calculate perplexity using GPT-3 API
     """
@@ -61,39 +59,40 @@ def calculatePerplexity_gpt3(prompt, model_name):
     logits = data["token_logprobs"]
     input_ids_processed = data["tokens"]
 
-    p1 = np.exp(-np.mean(all_prob))
+    prep = np.exp(-np.mean(all_prob))
 
-    return p1, all_prob, np.mean(all_prob), logits, input_ids_processed
+    return prep, all_prob, logits, input_ids_processed
 
 
-def inference(model, tokenizer, text, label, name, line_to_top_words_map, entropy_map):
-    pred = {}
-    pred["FILE_PATH"] = name
-    pred["label"] = label
+def run_all_attacks(model, tokenizer, text, label, name, entropy_map, MAX_LEN_LINE_GENERATE, MIN_LEN_LINE_GENERATE,
+                    TOP_K_ENTROPY, nlp_spacy):
+    attacks_results = {}
+    attacks_results["FILE_PATH"] = name
+    attacks_results["label"] = label
 
     if model is None:
-        p1, all_prob, p1_likelihood, logits, input_ids_processed = calculatePerplexity_gpt3(text, "davinci")
+        prep, all_prob, logits, input_ids_processed = gpt3PerplexityScore(text, "davinci")
     else:
-        p1, all_prob, p1_likelihood, logits, input_ids_processed = calculatePerplexity(text, model, tokenizer,
-                                                                                       gpu=model.device)
+        prep, all_prob, logits, input_ids_processed = getPerplexityScore(text, model, tokenizer,
+                                                                          gpu=model.device)
     # ppl
-    pred["ppl"] = p1
+    attacks_results["ppl"] = prep
 
     # Ratio of log ppl of large and zlib
     zlib_entropy = len(zlib.compress(bytes(text, 'utf-8')))
-    pred["ppl_zlib"] = np.log(p1) / zlib_entropy
+    attacks_results["ppl_zlib"] = np.log(prep) / zlib_entropy
 
     # min-k prob
     for ratio in [0.1, 0.2, 0.3]:
         k_length = int(len(all_prob) * ratio)
         topk_prob = np.sort(all_prob)[:k_length]
-        pred[f"Min_{ratio * 100}% Prob"] = -np.mean(topk_prob).item()
+        attacks_results[f"Min_{ratio * 100}% Prob"] = -np.mean(topk_prob).item()
 
     # max-k prob
     for ratio in [0.1, 0.2, 0.3]:
         k_length = int(len(all_prob) * ratio)
         topk_prob = np.sort(all_prob)[-k_length:]
-        pred[f"Max_{ratio * 100}% Prob"] = -np.mean(topk_prob).item()
+        attacks_results[f"Max_{ratio * 100}% Prob"] = -np.mean(topk_prob).item()
 
     # Min-K++
     input_ids = torch.tensor(tokenizer.encode(text)).unsqueeze(0).to(model.device)
@@ -110,15 +109,22 @@ def inference(model, tokenizer, text, label, name, line_to_top_words_map, entrop
     for ratio in [0.1, 0.2, 0.3]:
         k_length = int(len(mink_plus) * ratio)
         topk = np.sort(mink_plus.cpu())[:k_length]
-        pred[f"MinK++_{ratio * 100}% Prob"] = np.mean(topk).item()
+        attacks_results[f"MinK++_{ratio * 100}% Prob"] = np.mean(topk).item()
 
     tokens = tokenizer.tokenize(text)
     concatenated_tokens = "".join(token for token in tokens)
     mink_plus = mink_plus.cpu()
 
     # Tag&Tab Attack:
+
+
+    # Create the map for the Top-K entropy Keywords
+    line_to_top_words_map, sentences = create_line_to_top_words_map(
+        text, entropy_map, MAX_LEN_LINE_GENERATE, MIN_LEN_LINE_GENERATE, TOP_K_ENTROPY, nlp_spacy
+    )
+
     # Define the values of k you want to iterate over
-    k_values = list(range(1, 11))
+    k_values = list(range(1, TOP_K_ENTROPY))
 
     # Create a list of bottom k words once
     all_bottom_k_words = {}
@@ -133,7 +139,6 @@ def inference(model, tokenizer, text, label, name, line_to_top_words_map, entrop
         "relevant_log_probs_one_token": [],
     }
 
-    # Process bottom k words once, ensuring lowest to highest entropy processing
     # This loop finds the indexes of the keywords tokens and calculate them
     for line_num, bottom_k_words in all_bottom_k_words.items():
         for i, word in enumerate(bottom_k_words):
@@ -163,22 +168,21 @@ def inference(model, tokenizer, text, label, name, line_to_top_words_map, entrop
 
         if relevant_log_probs:
             sentence_log_likelihood = np.mean(relevant_log_probs)
-            pred[f"sentence_entropy_log_likelihood_k={k}"] = sentence_log_likelihood
+            attacks_results[f"tag_tab_AT_k={k}"] = sentence_log_likelihood
 
         if relevant_log_probs_one_token:
             sentence_log_probs_one_token = np.mean(relevant_log_probs_one_token)
-            pred[f"sentence_log_probs_one_token_k={k}"] = sentence_log_probs_one_token
-
+            attacks_results[f"tag_tab_FT_k={k}"] = sentence_log_probs_one_token
 
     # Random Sampling of Words
     for k in k_values:
         if k <= len(all_prob):
             random_word_probs = random.sample(all_prob, k)
-            pred[f"random_words_mean_prob_k={k}"] = np.mean(random_word_probs)
+            attacks_results[f"random_words_mean_prob_k={k}"] = np.mean(random_word_probs)
         else:
-            pred[f"random_words_mean_prob_k={k}"] = None  # or handle this case appropriately
+            attacks_results[f"random_words_mean_prob_k={k}"] = None  # or handle this case appropriately
 
-    return pred
+    return attacks_results
 
 
 def run_exp(TOP_K_ENTROPY, MIN_LEN_LINE_GENERATE, MAX_LEN_LINE_GENERATE, tokenizer, model, nlp_spacy, mode,
@@ -202,11 +206,8 @@ def run_exp(TOP_K_ENTROPY, MIN_LEN_LINE_GENERATE, MAX_LEN_LINE_GENERATE, tokeniz
             text = ex['text']
             text = preprocess_text(text, 2048, tokenizer)
             label = ex['meta']
-            line_to_top_words_map, sentences = create_line_to_top_words_map(
-                text, entropy_map, MAX_LEN_LINE_GENERATE, MIN_LEN_LINE_GENERATE, TOP_K_ENTROPY, nlp_spacy
-            )
-            new_ex = inference(model, tokenizer, text, label, str(i),
-                               line_to_top_words_map, entropy_map)
+            new_ex = run_all_attacks(model, tokenizer, text, label, str(i), entropy_map, MAX_LEN_LINE_GENERATE,
+                                     MIN_LEN_LINE_GENERATE, TOP_K_ENTROPY, nlp_spacy)
             all_output.append(new_ex)
             if i % 1000 == 0:  # Update progress bar every 1000 iterations
                 progress_bar.update(1000)
@@ -234,11 +235,8 @@ def run_exp(TOP_K_ENTROPY, MIN_LEN_LINE_GENERATE, MAX_LEN_LINE_GENERATE, tokeniz
             text = ex['input'] if mode == 'WikiMIA' else ex['snippet']
             text = preprocess_text(text, 2048, tokenizer)
             label = ex['label']
-            line_to_top_words_map, sentences = create_line_to_top_words_map(
-                text, entropy_map, MAX_LEN_LINE_GENERATE, MIN_LEN_LINE_GENERATE, TOP_K_ENTROPY, nlp_spacy
-            )
-            new_ex = inference(model, tokenizer, text, label, str(i),
-                               line_to_top_words_map, entropy_map)
+            new_ex = run_all_attacks(model, tokenizer, text, label, str(i), entropy_map, MAX_LEN_LINE_GENERATE,
+                                     MIN_LEN_LINE_GENERATE, TOP_K_ENTROPY, nlp_spacy)
             all_output.append(new_ex)
             if i % 1000 == 0:  # Update progress bar every 1000 iterations
                 progress_bar.update(1000)
