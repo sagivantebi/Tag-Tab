@@ -38,7 +38,8 @@ def get_metrics(scores, labels):
     # Calculate accuracy
     acc = np.max(1 - (fpr_list + (1 - tpr_list)) / 2)
 
-    return fpr_list, tpr_list,auroc, fpr95, tpr05, acc
+    return fpr_list, tpr_list, auroc, fpr95, tpr05, acc
+
 
 def do_plot(prediction, answers, legend="", output_dir=None):
     fpr, tpr, auc_score, fpr95, tpr05, acc = get_metrics(prediction, answers)
@@ -59,6 +60,7 @@ def do_plot(prediction, answers, legend="", output_dir=None):
     metric_text = 'auc=%.3f' % auc_score
     plt.plot(fpr, tpr, label=legend + metric_text)
     return legend, auc_score, acc, low
+
 
 def fig_fpr_tpr(all_output, output_dir):
     print("output_dir", output_dir)
@@ -115,6 +117,7 @@ def fig_fpr_tpr(all_output, output_dir):
 
     print(f"AUC results saved to {auc_file_path}")
 
+
 def save_metrics_to_csv(results, output_dir, model_name, dataset):
     # Convert the results dictionary to a DataFrame
     df = pd.DataFrame(results)
@@ -122,8 +125,8 @@ def save_metrics_to_csv(results, output_dir, model_name, dataset):
     # Specify the attacks to keep
     attacks_to_keep = [
         "ppl", "ppl_zlib",
-        "Min_20.0% Prob", "Max_20.0% Prob","MinK++_20.0% Prob",
-         "sentence_log_probs_one_token_k=1"
+        "Min_20.0% Prob", "Max_20.0% Prob", "MinK++_20.0% Prob",
+        "tag_tab_FT_k=1", "tag_tab_FT_k=4", "tag_tab_FT_k=10"
     ]
 
     # Filter the DataFrame to include only the specified attacks
@@ -183,7 +186,9 @@ def evaluate_top_name_piles(csv_path, number_of_piles_to_check=15):
             os.makedirs(output_dir)
 
         # Evaluate and save results
-        evaluate_and_save_results(scores_dict, [{'label': label} for label in labels], dataset, model_id, output_dir, pile_name)
+        evaluate_and_save_results(scores_dict, [{'label': label} for label in labels], dataset, model_id, output_dir,
+                                  pile_name)
+
 
 def evaluate_and_save_results(scores_dict, data, dataset, model_id, output_dir, name_pile):
     labels = [d['label'] for d in data]  # Ensure labels are binary
@@ -293,7 +298,6 @@ def create_acc_csv(results_dir, output_csv, mode_metric="TPR@FPR=5%"):
                         acc = str(acc)
                         acc = acc[:-1] + "%"
 
-
                     acc_dict[attack_name][pile_name] = acc
 
     # Convert the dictionary to a DataFrame
@@ -303,7 +307,6 @@ def create_acc_csv(results_dir, output_csv, mode_metric="TPR@FPR=5%"):
     acc_df.to_csv(output_csv, index=True)
 
     print(f"Accuracy results saved to {output_csv}")
-
 
 
 def rename_rows_and_generate_heatmap(input_csv_path, output_image_path, mode_metric):
@@ -323,7 +326,9 @@ def rename_rows_and_generate_heatmap(input_csv_path, output_image_path, mode_met
         'Min_20.0% Prob': 'MIN-20% PROB',
         'Max_20.0% Prob': 'MAX-20% PROB',
         "MinK++_20.0% Prob": 'MinK++-20% PROB',
-        'sentence_log_probs_one_token_k=1': 'Ours'
+        'tag_tab_FT_k=1': 'Ours (Tag&Tab K=1 (FT))',
+        "tag_tab_FT_k=4": 'Ours (Tag&Tab K=4 (FT))',
+        "tag_tab_FT_k=10": 'Ours (Tag&Tab K=10 (FT))'
     }
     df.rename(index=rename_dict, inplace=True)
 
@@ -364,7 +369,7 @@ def sanitize_filename(filename):
     return "".join([c if c.isalnum() or c in (' ', '.', '_') else '_' for c in filename])
 
 
-def evaluate_leave_one_out(csv_path, results_dir,number_of_piles_to_check=15, mode_metric="AUC"):
+def evaluate_leave_one_out(csv_path, results_dir, number_of_piles_to_check=15, mode_metric="AUC"):
     df = pd.read_csv(csv_path)
     # Get the top most frequent 'Pile Name' appearances
     top_name_piles = df['Pile Name'].value_counts().head(number_of_piles_to_check).index.tolist()
@@ -378,18 +383,22 @@ def evaluate_leave_one_out(csv_path, results_dir,number_of_piles_to_check=15, mo
         train_df = df[df['Pile Name'] != leave_out_pile]
         val_df = df[df['Pile Name'] == leave_out_pile]
 
-        train_scores_dict = {col: train_df[col].tolist() for col in train_df.columns if col not in ['FILE_PATH', 'Pile Name', 'label']}
+        train_scores_dict = {col: train_df[col].tolist() for col in train_df.columns if
+                             col not in ['FILE_PATH', 'Pile Name', 'label']}
         train_labels = train_df['label'].tolist()
 
-        val_scores_dict = {col: val_df[col].tolist() for col in val_df.columns if col not in ['FILE_PATH', 'Pile Name', 'label']}
+        val_scores_dict = {col: val_df[col].tolist() for col in val_df.columns if
+                           col not in ['FILE_PATH', 'Pile Name', 'label']}
         val_labels = val_df['label'].tolist()
 
         output_dir = os.path.join(results_dir, f"leave_out_{sanitize_filename(str(leave_out_pile))}")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
-        evaluate_and_save_results(train_scores_dict, [{'label': label} for label in train_labels], dataset, model_name, output_dir, "train")
-        evaluate_and_save_results(val_scores_dict, [{'label': label} for label in val_labels], dataset, model_name, output_dir, "val")
+        evaluate_and_save_results(train_scores_dict, [{'label': label} for label in train_labels], dataset, model_name,
+                                  output_dir, "train")
+        evaluate_and_save_results(val_scores_dict, [{'label': label} for label in val_labels], dataset, model_name,
+                                  output_dir, "val")
 
         create_acc_csv(output_dir, os.path.join(output_dir, "results.csv"), mode_metric=mode_metric)
 
@@ -411,6 +420,7 @@ def evaluate_leave_one_out(csv_path, results_dir,number_of_piles_to_check=15, mo
     # Generate combined heatmap
     generate_combined_heatmap(combined_results, os.path.join(results_dir, "combined_heatmap.png"))
 
+
 def generate_combined_heatmap(combined_results, output_image_path):
     combined_df = pd.DataFrame(combined_results)
 
@@ -418,13 +428,14 @@ def generate_combined_heatmap(combined_results, output_image_path):
     combined_df_cleaned = combined_df.applymap(lambda x: float(str(x).strip('%')) / 100 if isinstance(x, str) else x)
 
     # Sort the columns by the values in the 'sentence_entropy_log_likelihood_k=2' row in descending order
-    if 'sentence_log_probs_one_token_k=1' in combined_df_cleaned.index:
-        sorted_columns = combined_df_cleaned.loc['sentence_log_probs_one_token_k=1'].sort_values(ascending=False).index
+    if 'tag_tab_FT_k=1' in combined_df_cleaned.index:
+        sorted_columns = combined_df_cleaned.loc['tag_tab_FT_k=1'].sort_values(ascending=False).index
         combined_df_cleaned = combined_df_cleaned[sorted_columns]
 
     # Plot the heatmap with switched axes
     plt.figure(figsize=(10, 4))
-    sns.heatmap(combined_df_cleaned.T, annot=True, cmap='coolwarm', center=0.5, fmt=".2f", cbar_kws={'label': 'Accuracy'})
+    sns.heatmap(combined_df_cleaned.T, annot=True, cmap='coolwarm', center=0.5, fmt=".2f",
+                cbar_kws={'label': 'Accuracy'})
     plt.ylabel('Pile Names')
     plt.xlabel('Metrics')
     plt.title('Combined Accuracy Heatmap')
@@ -437,6 +448,7 @@ def generate_combined_heatmap(combined_results, output_image_path):
     plt.show()
 
     print(f"Combined heatmap saved to {output_image_path}")
+
 
 if __name__ == "__main__":
     # # Paths to the CSV files
@@ -460,8 +472,7 @@ if __name__ == "__main__":
     # Clean the merged CSV file
     clean_csv(merged_output_path, cleaned_output_path)
     #
-    evaluate_top_name_piles(merged_output_path, number_of_piles_to_check=15)
-
+    evaluate_top_name_piles(merged_output_path, number_of_piles_to_check=20)
 
     # modes = "Accuracy" , "TPR@FPR=5%", "AUC"
     mode_metric = "AUC"
@@ -473,4 +484,3 @@ if __name__ == "__main__":
     output_image_path = results_directory + llm_model + "_" + mode_metric + '_heatmap.png'
     rename_rows_and_generate_heatmap(input_csv_path, output_image_path, mode_metric)
     # evaluate_leave_one_out(merged_output_path, results_directory)
-
