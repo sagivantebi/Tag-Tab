@@ -73,7 +73,7 @@ Our script supports the following baselines:
 - **Neighbor**: generates neighbor sentences using a different language model and compares the perplexity ratios, though it is computationally expensive. We followed their paper for this attack and used 'Bert' as the reference model.
 - **Min-K%**: averaging the lowest k% probabilities.
 - **Max-K%**: averaging the highest k% probabilities.
-- **Min-K%**: averaging the lowest k% probabilities while normalizing token log probabilities using mean and variance.
+- **Min-K++%**: averaging the lowest k% probabilities while normalizing token log probabilities using mean and variance.
 
 ## 📘 Datasets
 
