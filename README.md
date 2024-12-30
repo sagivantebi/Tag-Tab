@@ -60,6 +60,9 @@ python src/testbed.py --model_name <target_model_name> --mode <dataset_name>
 - `huggyllama/LLaMa-7b`
 - `huggyllama/LLaMa-13b`
 - `huggyllama/LLaMa-30b`
+- `EleutherAI/pythia-160m`
+- `EleutherAI/pythia-1.4b`
+- `EleutherAI/pythia-2.8b`
 - `EleutherAI/pythia-6.9b`
 - `EleutherAI/pythia-12b`
 
@@ -74,6 +77,8 @@ Our script supports the following baselines:
 - **Min-K%**: averaging the lowest k% probabilities.
 - **Max-K%**: averaging the highest k% probabilities.
 - **Min-K++%**: averaging the lowest k% probabilities while normalizing token log probabilities using mean and variance.
+- **RECALL**: measures the relative change in log-likelihood when conditioning the target text on non-member prefixes.
+- **DC-PDD**: calibrates token probabilities using divergence from a reference corpus.
 
 ## 📘 Datasets
 
