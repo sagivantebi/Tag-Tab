@@ -125,7 +125,7 @@ def save_metrics_to_csv(results, output_dir, model_name, dataset):
     # Specify the attacks to keep
     attacks_to_keep = [
         "ppl", "ppl_zlib",
-        "Min_20.0% Prob", "Max_20.0% Prob", "MinK++_20.0% Prob",
+        "Min_20.0% Prob", "Max_20.0% Prob", "MinK++_20.0% Prob", 'recall', 'DC-PDD_Score',
         "tag_tab_FT_k=1", "tag_tab_FT_k=4", "tag_tab_FT_k=10"
     ]
 
@@ -326,6 +326,9 @@ def rename_rows_and_generate_heatmap(input_csv_path, output_image_path, mode_met
         'Min_20.0% Prob': 'MIN-20% PROB',
         'Max_20.0% Prob': 'MAX-20% PROB',
         "MinK++_20.0% Prob": 'MinK++-20% PROB',
+        "neighbourhood_loss": "Neighbor",
+        'recall': 'ReCall',
+        "DC-PDD_Score": "DC-PDD",
         'tag_tab_FT_k=1': 'Ours (Tag&Tab K=1 (FT))',
         "tag_tab_FT_k=4": 'Ours (Tag&Tab K=4 (FT))',
         "tag_tab_FT_k=10": 'Ours (Tag&Tab K=10 (FT))'
