@@ -128,7 +128,7 @@ def save_metrics_to_csv(results, output_dir, model_name, dataset):
     # Specify the attacks to keep
     attacks_to_keep = [
         "ppl", "ppl_zlib",
-        "Min_20.0% Prob", "Max_20.0% Prob",
+        "Min_20.0% Prob", "Max_20.0% Prob", 'recall', 'DC-PDD_Score',
         "MinK++_20.0% Prob"] + ["tag_tab_AT_k=" + str(i) for i in range(1,11)] + ["random_words_mean_prob_k=" + str(i) for i in range(1,11)]
 
     # Filter the DataFrame to include only the specified attacks
