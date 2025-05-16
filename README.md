@@ -1,50 +1,51 @@
-# 🧩Tag&Tab: Efficient and Effective Detection of Pretraining Data from Large Language Models
+# 🧩Tag&Tab: Pretraining Data Detection in Large Language Models Using Keyword-Based Membership Inference Attack
 
-Welcome to the Tag&Tab repository, the official implementation of our novel method for detecting pretraining data from Large Language Models (LLMs). This repository contains the source code, datasets references, and evaluation scripts necessary to replicate our experiments and results as presented in our research paper, "Tag&Tab: Enhancing Data Leakage Detection in Large Language Models through Keyword-Based Membership Inference Attacks"
+Welcome to the official implementation of **Tag&Tab**, a novel method for detecting pretraining data in Large Language Models (LLMs) through keyword-based membership inference attacks. This repository provides the code, dataset references, and evaluation scripts to replicate the experiments from our paper:  
+**"Tag&Tab: Pretraining Data Detection in Large Language Models Using Keyword-Based Membership Inference Attack"**
 
 ![Tag-tab](https://github.com/user-attachments/assets/6bd86765-d4e5-4455-a37e-1a3cf6d9a29e)
 
+Tag&Tab determines whether a given text was part of an LLM's pretraining data using a two-stage process:
+1. **Tagging**: Selecting high-entropy and named-entity keywords.
+2. **Tabbing**: Computing the average log-likelihood of these keywords through the LLM.
 
-Illustration of the method Tag&Tab - The process starts by inputting a text (in this example, the input is the conclusion of the well-known poem "The Road Not Taken" in the target LLM to obtain its word probability distribution (Word Probability). In the Tag step, the keywords are selected based on the words' entropy score (created in the Preprocessing phase). In the Tab step, the log-likelihood of the selected keywords is calculated. Finally, in the infer step, the average log-likelihood of the chosen keywords is compared against a threshold $\gamma$ to determine if the text was part of the target LLM's pretraining data
+The method operates in a black-box setting and is designed for efficiency, requiring no auxiliary models or retraining.
 
-## Overview
+## 📄 Overview
 
-We explore the pretraining data detection problem: given a piece of text and black-box access to an LLM without knowing the pretraining data, can we determine if the model was trained on the provided text? Our approach, Tag&Tab, uses advanced NLP techniques to tag high-entropy keywords and predict their log-likelihoods using the target LLM.
+Tag&Tab addresses the task of **pretraining data detection**: given a piece of text and black-box access to an LLM, can we infer whether the model was trained on that text?
 
-## Optimal Configuration
+Unlike existing MIAs that analyze entire token sequences, Tag&Tab focuses on the most informative words — combining high-entropy tokens with named entities — to detect memorization more effectively. This approach overcomes common weaknesses of MIAs, such as poor generalization and sensitivity to distribution shifts.
 
+## 🔍 Optimal Configuration
 
-- We show the impact of our word selection method, Tag, which selects the highest $K$ entropy words, compared to a random selection of words using the same Tab algorithm. For each model, we presented 10 results using the Tag method (Blue) and 10 results using a random selection of words (Orange).
-The results indicate that selecting the highest $K$ entropy words improves performance across all models. The Tag method achieved an average AUC of 79%, compared to an average AUC of 64.4% with a random selection of $K$ words. This demonstrates the effectiveness of the Tag method in enhancing model performance by focusing on high-entropy words.
+We conducted extensive experiments to determine the best configuration of Tag&Tab:
+
+- **Tagging Impact**: Comparing the selection of high-entropy keywords versus random token selection, Tag&Tab achieved an average AUC of 0.80, while random selection only reached 0.64. This demonstrates the effectiveness of entropy-based keyword selection.
+  
 ![K_ent_rand](https://github.com/user-attachments/assets/91bef60b-b182-4a8b-a5f5-6da133c268a6)
 
-
-- The number of chosen keywords that perform best was tested by choosing 1 to 10 keywords from each sentence.
-The results show that the optimal number of keywords required to ensure the optimal detection depends also on the model architecture. For different sizes of the LLaMa1 models, the optimal number of keywords ranged from 2 to 3, while for the Pythia models and GPT-3.5 turbo, the optimal number of tagged keywords was 7 keywords.
-To generalize our selection we can infer that the best results across all models on average were when the number of highest $K$ entropy words was when $K=4$, resulting in an average AUC score of 79.7\%.
+- **Choosing K**: Varying the number of selected keywords per input, we found that smaller LLaMa models perform best with 2-3 keywords, while larger models (e.g., Pythia, GPT-3.5 Turbo) prefer 7. For generalization, we use **K=4** as the default, achieving strong performance across models with an average AUC of 0.797.
 
 ![optimal_k_long](https://github.com/user-attachments/assets/c4e56bc3-eaa6-4f83-b882-9b7f3f4fb038)
 
-
-
 ## 🚀 Running Tag&Tab
 
-### Files in `src/` Folder
+### Code Structure (`src/` Folder)
+- `attacks.py`: Core implementation of Tag&Tab and baseline MIAs.
+- `book_list.py`: Lists BookMIA documents excluded from model training.
+- `evaluation_BookMIA.py`: Evaluation script for BookMIA dataset.
+- `evaluation_THE_PILE.py`: Evaluation script for The Pile dataset.
+- `helpers.py`: Common utility functions.
+- `run_neighbor_attack.py`: Runs the Neighbor attack baseline.
+- `testbed.py`: Main driver script for running experiments.
 
-- **attacks.py**: Contains the implementation of various attack methods used for evaluating the model.
-- **book_list.py**: Defines the list of book titles not included in the training set.
-- **evaluation_BookMIA.py**: Evaluation script for the BookMIA dataset.
-- **evalutation_THE_PILE.py**: Evaluation script for the PILE dataset.
-- **helpers.py**: Helper functions used throughout the codebase.
-- **run_neighbor_attack.py**: Script to run neighbor attack methods.
-- **testbed.py**: Testbed for running various experiments and evaluations.
+### Running Tag&Tab
+To run Tag&Tab on a target model and dataset:
 
-### Running the Model
+```bash
+python src/testbed.py --model_name <target_model_name> --mode <dataset_name>
 
-To run the Tag&Tab method, use the following command:
-
-```sh
-python src/testbed.py --model_name <target_model_name> --mode <dataset_name> 
 ```
 
 ### Parameters Explained:
