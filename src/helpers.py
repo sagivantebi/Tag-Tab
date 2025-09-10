@@ -5,33 +5,52 @@ import math
 from pathlib import Path
 from collections import Counter
 from datasets import load_dataset
+import re, string
+from wordfreq import word_frequency
 
+_PUNC_TABLE = str.maketrans("", "", string.punctuation)
 
-def calculate_entropy(word_freq, total_words):
-    probability = word_freq / total_words
-    return -probability * math.log2(probability)
+def _normalize_token(w: str) -> str:
+    w = w.lower().translate(_PUNC_TABLE)
+    w = re.sub(r"\s+", "", w)
+    return w
 
 
 def create_entropy_map(data_sources, mode='books'):
-    word_counts = Counter()
+    """
+    Build an entropy map over normalized word forms.
+    For English sources, use wordfreq probability proxy p and set entropy = -p*log2(p).
+    Unknown words (freq==0) get 0 entropy (treated as very rare).
+    """
+    vocab = set()
+
+    def add_text(text: str):
+        for w in text.split():
+            ww = _normalize_token(w)
+            if ww:
+                vocab.add(ww)
+
     if mode == 'PILE':
-        for dataset in data_sources:
-            for item in dataset[0]:
-                words = item['text'].split()
-                word_counts.update(words)
+        # data_sources is a (possibly streaming) iterable of dicts with 'text'
+        for item in data_sources:
+            add_text(item['text'])
     elif mode == 'BookMIA':
         print(f"Started processing for mode: {mode}")
-        dataset_name = "swj0419/BookMIA"
-        db_data = load_dataset(dataset_name, split="train")
+        db_data = load_dataset("swj0419/BookMIA", split="train")
         for item in db_data:
-            text_field = 'snippet'
-            words = item[text_field].split()
-            word_counts.update(words)
+            add_text(item['snippet'])
+    else:
+        # fallback: assume iterable of dicts with 'text'
+        for item in (data_sources or []):
+            add_text(item.get('text', ''))
 
-    total_words = sum(word_counts.values())
-    entropy_map = {word: calculate_entropy(freq, total_words) for word, freq in word_counts.items()}
+    # wordfreq returns frequency proxy; use as p for ranking
+    entropy_map = {}
+    for w in vocab:
+        p = word_frequency(w, 'en')  # proxy probability
+        entropy_map[w] = (-p * math.log2(p)) if p > 0.0 else 0.0
 
-    return entropy_map
+    return entropy_map
 
 
 def save_entropy_map(entropy_map, filename):
@@ -93,34 +112,48 @@ def create_entropy_map_func(mode="BookMIA", train_val_pile="validation"):
 def strip_punctuation(word):
     return word.strip(string.punctuation)
 
-def bottom_k_entropy_words(line, entropy_map, TOP_K_ENTROPY):
-    words_in_line = line.split()
-    top_k = int(TOP_K_ENTROPY)
 
-    return sorted(words_in_line, key=lambda word: entropy_map.get(word, float('inf')))[:top_k]
+def bottom_k_entropy_words(line, entropy_map, TOP_K_ENTROPY):
+    tokens = [_normalize_token(w) for w in line.split()]
+    tokens = [t for t in tokens if t]  # drop empties/punct
+    top_k = int(TOP_K_ENTROPY)
+    # Unknown words => +inf so they won't be incorrectly favored here;
+    # truly rare but known (low p) have low entropy and will rank first.
+    return sorted(tokens, key=lambda w: entropy_map.get(w, float('inf')))[:top_k]
 
 
 def create_line_to_top_words_map(text, entropy_map, MAX_LEN_LINE_GENERATE, MIN_LEN_LINE_GENERATE, TOP_K_ENTROPY,
                                  nlp_spacy):
-    # text = text.replace('\n', '')
     doc = nlp_spacy(text)
-    # Debugging: convert iterator to list to check content
     all_sentences = list(doc.sents)
-    sentences = [sent.text.strip() for sent in all_sentences if
-                 MIN_LEN_LINE_GENERATE <= len(sent.text.split()) <= MAX_LEN_LINE_GENERATE]
+    sentences = [s.text.strip() for s in all_sentences
+                 if MIN_LEN_LINE_GENERATE <= len(s.text.split()) <= MAX_LEN_LINE_GENERATE]
 
     line_to_top_words_map = {}
 
     for line_num, line in enumerate(sentences, 1):
-        if line.strip():
-            top_k_words = {re.sub(r'^\W+|\W+$', '', word.strip(string.punctuation)) for word in
-                           bottom_k_entropy_words(line, entropy_map, TOP_K_ENTROPY) if ' ' not in word}
+        if not line.strip():
+            continue
 
-            ners = {strip_punctuation(ent.text) for ent in doc.ents if ' ' not in ent.text and ent.sent.text == line}
-            unique_words = top_k_words.union(ners)
-            line_to_top_words_map[line_num] = list(unique_words)
+        # bottom-K low-entropy words from THIS sentence (normalized, no punctuation)
+        low_entropy_k = set(bottom_k_entropy_words(line, entropy_map, TOP_K_ENTROPY))
 
-    return line_to_top_words_map, sentences
+        # NER spans from THIS sentence, single-token forms normalized (keep multi-token by splitting)
+        sent_doc = nlp_spacy(line)
+        ner_tokens = set()
+        for ent in sent_doc.ents:
+            # split multi-word entities into tokens and normalize
+            for piece in ent.text.split():
+                tok = _normalize_token(piece)
+                if tok:
+                    ner_tokens.add(tok)
+
+        # Union (final set may exceed K as stated in the paper)
+        unique_words = list(low_entropy_k.union(ner_tokens))
+
+        line_to_top_words_map[line_num] = unique_words
+
+    return line_to_top_words_map, sentences
 
 def preprocess_text(text, max_length, tokenizer):
     # Tokenize the text and truncate it to the maximum length
@@ -148,4 +181,5 @@ def write_to_csv(data, filename):
             writer = csv.DictWriter(csvfile, fieldnames=headers)
             writer.writeheader()
             for row in data:
+
                 writer.writerow(row)
