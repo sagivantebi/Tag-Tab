@@ -112,6 +112,20 @@ dataset = load_dataset("monology/pile-uncopyrighted")
 - **Validation**: Refers to unseen data during pretraining.
 - **Train**: Refers to seen data.
 
+
+## ⚙️ Dependencies
+
+Our implementation relies on widely used, stable libraries (standard versions as of May 2024):
+
+- **Python** 3.10+
+- **PyTorch** 2.1 (with CUDA 12.1 for GPU experiments)
+- **Transformers (Hugging Face)** 4.40
+- **Datasets (Hugging Face)** 2.19
+- **spaCy** 3.7 (`en_core_web_sm` or `en_core_web_trf` for NER)
+- **NLTK** 3.8 (with `punkt`, `stopwords`, and `wordnet` corpora downloaded)
+- **wordfreq** 3.0
+- **jieba** 0.42 (for Chinese tokenization in PatentMIA)
+- **tiktoken** 0.6 (for GPT models)
   
 
 ## 🔐 API Key for OpenAI Models
