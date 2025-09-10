@@ -111,12 +111,18 @@ def run_all_attacks(model, tokenizer, text, label, name, entropy_map, MAX_LEN_LI
         topk = np.sort(mink_plus.cpu())[:k_length]
         attacks_results[f"MinK++_{ratio * 100}% Prob"] = np.mean(topk).item()
 
-    tokens = tokenizer.tokenize(text)
-    concatenated_tokens = "".join(token for token in tokens)
+
+    # Tokenize + normalize to match helper normalization
+    raw_tokens = tokenizer.tokenize(text)
+    # remove tokenizer artifacts (e.g., '▁') and punctuation, lowercase
+    decoded_tokens = [t.replace("▁", "") for t in raw_tokens]
+    norm_tokens = [re.sub(r"\s+", "", token.lower().translate(str.maketrans("", "", string.punctuation)))
+                   for token in decoded_tokens]
+    concatenated_tokens = "".join(norm_tokens)
     mink_plus = mink_plus.cpu()
 
-    # Tag&Tab Attack:
-
+                        
+    # Tag&Tab MIA Attack:
 
     # Create the map for the Top-K entropy Keywords
     line_to_top_words_map, sentences = create_line_to_top_words_map(
@@ -147,7 +153,7 @@ def run_all_attacks(model, tokenizer, text, label, name, entropy_map, MAX_LEN_LI
                 end_index = start_index + len(word)
                 start_token_index = end_token_index = None
                 current_length = 0
-                for j, token in enumerate(tokens):
+                for j, token in enumerate(norm_tokens):
                     current_length += len(token)
                     if current_length > start_index and start_token_index is None:
                         start_token_index = j
@@ -244,3 +250,4 @@ def run_exp(TOP_K_ENTROPY, MIN_LEN_LINE_GENERATE, MAX_LEN_LINE_GENERATE, tokeniz
         current_time = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
         dir_path = f"{mode}/{mode}_Results_To_be_covered/M={only_model_name}_K={str(TOP_K_ENTROPY)}_D={mode}_{current_time}.csv"
         write_to_csv(all_output, dir_path)
+
