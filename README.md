@@ -3,9 +3,10 @@
 Welcome to the official implementation of **Tag&Tab**, a novel method for detecting pretraining data in Large Language Models (LLMs) through keyword-based membership inference attacks. This repository provides the code, dataset references, and evaluation scripts to replicate the experiments from our paper:  
 **"Tag&Tab: Pretraining Data Detection in Large Language Models Using Keyword-Based Membership Inference Attack"**
 
+![Image](https://github.com/user-attachments/assets/18a04423-8c78-4675-81f8-7827e988eef9)
 
 Tag&Tab determines whether a given text was part of an LLM's pretraining data using a two-stage process:
-1. **Tagging**: Selecting high-entropy and named-entity keywords.
+1. **Tagging**: Selecting low-entropy and named-entity keywords.
 2. **Tabbing**: Computing the average log-likelihood of these keywords through the LLM.
 
 The method operates in a black-box setting and is designed for efficiency, requiring no auxiliary models or retraining.
@@ -14,13 +15,13 @@ The method operates in a black-box setting and is designed for efficiency, requi
 
 Tag&Tab addresses the task of **pretraining data detection**: given a piece of text and black-box access to an LLM, can we infer whether the model was trained on that text?
 
-Unlike existing MIAs that analyze entire token sequences, Tag&Tab focuses on the most informative words — combining high-entropy tokens with named entities — to detect memorization more effectively. This approach overcomes common weaknesses of MIAs, such as poor generalization and sensitivity to distribution shifts.
+Unlike existing MIAs that analyze entire token sequences, Tag&Tab focuses on the most informative words — combining low-entropy tokens with named entities — to detect memorization more effectively. This approach overcomes common weaknesses of MIAs, such as poor generalization and sensitivity to distribution shifts.
 
 ## 🔍 Optimal Configuration
 
 We conducted extensive experiments to determine the best configuration of Tag&Tab:
 
-- **Tagging Impact**: Comparing the selection of high-entropy keywords versus random token selection, Tag&Tab achieved an average AUC of 0.80, while random selection only reached 0.64. This demonstrates the effectiveness of entropy-based keyword selection.
+- **Tagging Impact**: Comparing the selection of low-entropy keywords versus random token selection, Tag&Tab achieved an average AUC of 0.80, while random selection only reached 0.64. This demonstrates the effectiveness of entropy-based keyword selection.
   
 ![K_ent_rand](https://github.com/user-attachments/assets/91bef60b-b182-4a8b-a5f5-6da133c268a6)
 
