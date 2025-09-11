@@ -3,7 +3,6 @@
 Welcome to the official implementation of **Tag&Tab**, a novel method for detecting pretraining data in Large Language Models (LLMs) through keyword-based membership inference attacks. This repository provides the code, dataset references, and evaluation scripts to replicate the experiments from our paper:  
 **"Tag&Tab: Pretraining Data Detection in Large Language Models Using Keyword-Based Membership Inference Attack"**
 
-![Tag-tab](https://github.com/user-attachments/assets/6bd86765-d4e5-4455-a37e-1a3cf6d9a29e)
 
 Tag&Tab determines whether a given text was part of an LLM's pretraining data using a two-stage process:
 1. **Tagging**: Selecting high-entropy and named-entity keywords.
