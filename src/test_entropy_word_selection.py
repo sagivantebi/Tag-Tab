@@ -5,11 +5,8 @@ import spacy
 from datasets import load_dataset
 from wordfreq import word_frequency
 
-# ==============================================================================
-# 1. HELPER FUNCTIONS (Adapted from your provided code)
-# ==============================================================================
 
-# This table is used for efficiently removing punctuation
+
 _PUNC_TABLE = str.maketrans("", "", string.punctuation)
 
 
@@ -42,9 +39,7 @@ def create_entropy_map(data_source):
     print("Calculating entropy for each word...")
     entropy_map = {}
     for word in vocab:
-        # Use wordfreq library to get a proxy for probability
         p = word_frequency(word, 'en')
-        # Calculate entropy; if p is 0, entropy is 0
         entropy_map[word] = (-p * math.log2(p)) if p > 0.0 else 0.0
 
     print("Entropy map calculation complete.")
@@ -109,10 +104,6 @@ def pick_words_with_ner(text, entropy_map, k, nlp_spacy):
     return list(low_entropy_k.union(ner_tokens))
 
 
-# ==============================================================================
-# 2. MAIN EXECUTION SCRIPT
-# ==============================================================================
-
 if __name__ == "__main__":
     # --- PART 1: CONSTRUCT THE ENTROPY MAP ---
     print("### Step 1: Building the Entropy Map on BookMIA ###\n")
@@ -175,4 +166,5 @@ if __name__ == "__main__":
         picked_words = bottom_k_entropy_words(sentence, loaded_entropy_map, K)
         print(f"  Sentence {i + 1}:")
         print(f"    - Original: \"{sentence.strip()}\"")
+
         print(f"    - Picked Words: {picked_words}\n")
